@@ -1,8 +1,13 @@
-import { Text } from "@/components/Themed";
-import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { useRouter } from "expo-router";
+import { Text } from "@/components/Themed";
 import { useAuth } from "../../src/auth/auth";
+
+import { Button } from "@/src/ui/Button";
+import { Card, CardContent, CardHeader } from "@/src/ui/Card";
+import { Field } from "@/src/ui/Field";
+import { ui } from "@/src/ui/tokens";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -35,15 +40,11 @@ export default function LoginScreen() {
 
     setIsSubmitting(true);
     try {
-      // MOCK : on simule un appel réseau
+      // MOCK réseau
       await new Promise((r) => setTimeout(r, 600));
 
-      // ✅ Plus tard : ici on remplacera par la vraie auth (Supabase, magic link, etc.)
-      // Exemples de messages prêts :
-      // - "Veuillez confirmer votre email via le lien reçu avant de vous connecter."
-      // - "Mot de passe incorrect."
-      // - "Aucun compte associé à cet email."
-
+      // Plus tard (auth réelle) :
+      // setError("Veuillez confirmer votre email via le lien reçu avant de vous connecter.");
       await login();
       router.replace("/(tabs)");
     } catch {
@@ -55,87 +56,77 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.page}>
-      <View style={styles.card}>
-        {/* Logo (placeholder simple) */}
-        <View style={styles.logoBox}>
-          <Text style={styles.logoText}>LOGO</Text>
-        </View>
-
-        {/* Phrase description */}
-        <Text style={styles.description}>
-          Une phrase courte pour décrire l'app, simple et rassurante.
-        </Text>
-
-        {/* Titre + sous-titre */}
-        <Text style={styles.title}>Connexion</Text>
-        <Text style={styles.subtitle}>Ravi de vous revoir. Connectez-vous pour continuer.</Text>
-
-        {/* Erreur */}
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-        {/* Inputs sans labels */}
-        <View style={styles.inputGroup}>
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Email"
-            autoCapitalize="none"
-            keyboardType="email-address"
-            textContentType="emailAddress"
-            style={styles.input}
-          />
-
-          <View style={styles.passwordRow}>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Mot de passe"
-              autoCapitalize="none"
-              secureTextEntry={!showPassword}
-              textContentType="password"
-              style={[styles.input, styles.passwordInput]}
-            />
-            <Pressable
-              onPress={() => setShowPassword((v) => !v)}
-              style={styles.eyeButton}
-              accessibilityRole="button"
-              accessibilityLabel={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-            >
-              <Text style={styles.eyeText}>Oeil</Text>
-            </Pressable>
+      <Card style={styles.card}>
+        <CardHeader>
+          <View style={styles.logoBox}>
+            <Text style={styles.logoText}>LOGO</Text>
           </View>
 
-          <Pressable
-            onPress={() => router.push("/(auth)/forgot-password" as any)}
-            style={styles.forgotWrap}
-            accessibilityRole="button"
-          >
-            <Text style={styles.forgotText}>Mot de passe oublié ?</Text>
-          </Pressable>
-        </View>
+          <Text style={styles.description}>
+            Une phrase courte pour décrire l'app, simple et rassurante.
+          </Text>
 
-        {/* Bouton connexion */}
-        <Pressable
-          onPress={onSubmit}
-          disabled={!canSubmit}
-          style={[styles.button, !canSubmit && styles.buttonDisabled]}
-          accessibilityRole="button"
-        >
-          {isSubmitting ? (
-            <ActivityIndicator />
-          ) : (
-            <Text style={styles.buttonText}>Connexion</Text>
-          )}
-        </Pressable>
+          <Text style={styles.title}>Connexion</Text>
+          <Text style={styles.subtitle}>
+            Ravi de vous revoir. Connectez-vous pour continuer.
+          </Text>
 
-        {/* Lien inscription */}
-        <View style={styles.bottomRow}>
-          <Text style={styles.bottomText}>Vous n'avez pas de compte ? </Text>
-          <Pressable onPress={() => router.push("/(auth)/register" as any)} accessibilityRole="button">
-            <Text style={styles.bottomLink}>Créer un compte</Text>
-          </Pressable>
-        </View>
-      </View>
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        </CardHeader>
+
+        <CardContent>
+          <View style={styles.form}>
+            <Field
+              label="Email"
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              error={error && !email.includes("@") ? "Email invalide" : undefined}
+            />
+
+            <Field
+              label="Mot de passe"
+              placeholder="Mot de passe"
+              value={password}
+              onChangeText={setPassword}
+              rightText={showPassword ? "Masquer" : "Oeil"}
+              onRightPress={() => setShowPassword((v) => !v)}
+              error={error && password.length < 6 ? "6 caractères minimum" : undefined}
+            />
+
+            <Pressable
+              onPress={() => router.push("/(auth)/forgot-password")}
+              style={styles.forgotWrap}
+              accessibilityRole="button"
+            >
+              <Text style={styles.forgotText}>Mot de passe oublié ?</Text>
+            </Pressable>
+
+            <Button
+              label="Connexion"
+              onPress={onSubmit}
+              disabled={!canSubmit}
+              loading={isSubmitting}
+              style={{ marginTop: ui.spacing.sm }}
+            />
+
+            <View style={styles.bottomRow}>
+              <Text style={styles.bottomText}>Vous n'avez pas de compte ? </Text>
+              <Pressable onPress={() => router.push("/(auth)/register")} accessibilityRole="button">
+                <Text style={styles.bottomLink}>Créer un compte</Text>
+              </Pressable>
+            </View>
+
+            <Pressable
+              onPress={() => router.push("/design-system")}
+              style={styles.dsLinkWrap}
+              accessibilityRole="button"
+            >
+              <Text style={styles.dsLink}>Voir le Design System →</Text>
+            </Pressable>
+          </View>
+        </CardContent>
+      </Card>
     </View>
   );
 }
@@ -143,21 +134,20 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    padding: 24,
+    padding: ui.spacing.xl,
     justifyContent: "center",
+    backgroundColor: ui.colors.background.main,
   },
   card: {
-    borderRadius: 20,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: 20,
-    gap: 12,
+    borderRadius: ui.radius.xl,
   },
   logoBox: {
     alignSelf: "center",
     width: 72,
     height: 72,
     borderRadius: 18,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 1,
+    borderColor: ui.colors.background.border,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -170,81 +160,42 @@ const styles = StyleSheet.create({
     textAlign: "center",
     opacity: 0.8,
     fontSize: 14,
-    marginBottom: 6,
+    marginTop: ui.spacing.sm,
   },
   title: {
     textAlign: "center",
     fontSize: 28,
     fontWeight: "800",
+    marginTop: ui.spacing.sm,
   },
   subtitle: {
     textAlign: "center",
     opacity: 0.8,
     fontSize: 14,
-    marginBottom: 4,
+    marginTop: ui.spacing.xs,
   },
   errorText: {
     textAlign: "center",
     fontSize: 13,
-    fontWeight: "700",
-  },
-  inputGroup: {
-    gap: 10,
-    marginTop: 6,
-  },
-  input: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
-  },
-  passwordRow: {
-    position: "relative",
-    justifyContent: "center",
-  },
-  passwordInput: {
-    paddingRight: 64,
-  },
-  eyeButton: {
-    position: "absolute",
-    right: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 10,
-    borderWidth: StyleSheet.hairlineWidth,
-  },
-  eyeText: {
-    fontSize: 12,
     fontWeight: "800",
+    color: ui.colors.danger.main,
+    marginTop: ui.spacing.sm,
+  },
+  form: {
+    gap: ui.spacing.md,
   },
   forgotWrap: {
     alignSelf: "flex-end",
-    paddingVertical: 4,
+    marginTop: -6,
   },
   forgotText: {
     fontSize: 12,
-    fontWeight: "700",
-    opacity: 0.85,
-  },
-  button: {
-    marginTop: 6,
-    paddingVertical: 12,
-    borderRadius: 14,
-    borderWidth: StyleSheet.hairlineWidth,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 46,
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  buttonText: {
-    fontSize: 16,
     fontWeight: "800",
+    opacity: 0.85,
+    color: ui.colors.primary.main,
   },
   bottomRow: {
-    marginTop: 6,
+    marginTop: ui.spacing.sm,
     flexDirection: "row",
     justifyContent: "center",
     flexWrap: "wrap",
@@ -252,9 +203,21 @@ const styles = StyleSheet.create({
   bottomText: {
     fontSize: 13,
     opacity: 0.85,
+    color: ui.colors.neutral.second,
   },
   bottomLink: {
     fontSize: 13,
+    fontWeight: "900",
+    color: ui.colors.primary.main,
+  },
+  dsLinkWrap: {
+    marginTop: ui.spacing.sm,
+    alignItems: "center",
+  },
+  dsLink: {
+    fontSize: 13,
     fontWeight: "800",
+    opacity: 0.85,
+    color: ui.colors.neutral.second,
   },
 });
