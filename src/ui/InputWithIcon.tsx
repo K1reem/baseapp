@@ -1,38 +1,49 @@
 import React from "react";
-import { Pressable, StyleSheet, TextInput, View, ViewStyle } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  TextInput,
+  TextInputProps,
+  View,
+  ViewStyle,
+} from "react-native";
 import { Text } from "@/components/Themed";
 import { ui } from "./tokens";
+import { componentSpacing } from "./spacing";
+import { componentRadius } from "./radius";
+import { typography } from "./typography";
 
 type Props = {
-  value?: string;
-  placeholder?: string;
-  onChangeText?: (v: string) => void;
-  disabled?: boolean;
   error?: string;
+  disabled?: boolean;
 
-  rightText?: string;            // ex: "Oeil"
-  onRightPress?: () => void;     // toggle show/hide
+  rightText?: string;
+  onRightPress?: () => void;
   rightStyle?: ViewStyle;
+
+  inputProps?: Omit<TextInputProps, "style">;
 };
 
 export function InputWithIcon({
-  value,
-  placeholder,
-  onChangeText,
-  disabled = false,
   error,
+  disabled = false,
   rightText,
   onRightPress,
   rightStyle,
+  inputProps,
 }: Props) {
   return (
     <View style={styles.wrapper}>
-      <View style={[styles.row, error && styles.errorBorder, disabled && styles.disabled]}>
+      <View
+        style={[
+          styles.row,
+          error && styles.errorBorder,
+          disabled && styles.disabled,
+        ]}
+      >
         <TextInput
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          editable={!disabled}
+          {...inputProps}
+          editable={!disabled && inputProps?.editable !== false}
           style={styles.input}
           placeholderTextColor={ui.colors.neutral.muted}
         />
@@ -55,33 +66,34 @@ export function InputWithIcon({
 }
 
 const styles = StyleSheet.create({
-  wrapper: { gap: 6 },
+  wrapper: { gap: componentSpacing.fieldGap },
   row: {
     minHeight: 46,
-    borderRadius: ui.radius.md,
+    borderRadius: componentRadius.input,
     borderWidth: 1,
     borderColor: ui.colors.background.border,
-    paddingLeft: ui.spacing.md,
-    paddingRight: ui.spacing.sm,
-    backgroundColor: "white",
+    paddingLeft: componentSpacing.inputPaddingX,
+    paddingRight: componentSpacing.inputPaddingX,
+    backgroundColor: ui.colors.background.main,
     flexDirection: "row",
     alignItems: "center",
   },
   input: {
     flex: 1,
-    fontSize: 15,
-    paddingVertical: 12,
-    paddingRight: 10,
+    paddingVertical: componentSpacing.inputPaddingY,
+    paddingRight: componentSpacing.inputPaddingX,
+    color: ui.colors.neutral.main,
+    ...typography.body,
   },
   rightPill: {
-    borderRadius: ui.radius.sm,
+    borderRadius: componentRadius.pill,
     borderWidth: 1,
     borderColor: ui.colors.background.border,
-    paddingHorizontal: 10,
+    paddingHorizontal: componentSpacing.inputPaddingX,
     paddingVertical: 6,
   },
   rightText: {
-    fontSize: 12,
+    ...typography.bodySm,
     fontWeight: "800",
     color: ui.colors.neutral.main,
   },
@@ -93,9 +105,8 @@ const styles = StyleSheet.create({
     borderColor: ui.colors.danger.main,
   },
   errorText: {
-    fontSize: 12,
+    ...typography.bodySm,
     fontWeight: "700",
     color: ui.colors.danger.main,
   },
 });
-

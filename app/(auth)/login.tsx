@@ -1,7 +1,7 @@
+import { Text } from "@/components/Themed";
+import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import { useRouter } from "expo-router";
-import { Text } from "@/components/Themed";
 import { useAuth } from "../../src/auth/auth";
 
 import { Button } from "@/src/ui/Button";
@@ -45,6 +45,22 @@ export default function LoginScreen() {
 
       // Plus tard (auth réelle) :
       // setError("Veuillez confirmer votre email via le lien reçu avant de vous connecter.");
+      await login();
+      router.replace("/(tabs)");
+    } catch {
+      setError("Connexion impossible. Réessayez.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleTestLogin = async () => {
+    setEmail("test@demo.com");
+    setPassword("123456");
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      await new Promise((r) => setTimeout(r, 600));
       await login();
       router.replace("/(tabs)");
     } catch {
@@ -108,6 +124,13 @@ export default function LoginScreen() {
               disabled={!canSubmit}
               loading={isSubmitting}
               style={{ marginTop: ui.spacing.sm }}
+            />
+
+            <Button
+              label="Connexion test"
+              onPress={handleTestLogin}
+              variant="neutral"
+              disabled={isSubmitting}
             />
 
             <View style={styles.bottomRow}>

@@ -2,6 +2,9 @@ import React from "react";
 import { ActivityIndicator, Pressable, StyleSheet, ViewStyle } from "react-native";
 import { Text } from "@/components/Themed";
 import { ui } from "./tokens";
+import { spacing, componentSpacing } from "./spacing";
+import { radius, componentRadius } from "./radius";
+import { typography } from "./typography";
 
 type ButtonVariant = "primary" | "neutral" | "danger";
 
@@ -55,18 +58,17 @@ export function Button({
 const styles = StyleSheet.create({
   base: {
     minHeight: 46,
-    borderRadius: ui.radius.md,
+    borderRadius: componentRadius.button,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: ui.spacing.lg,
+    paddingHorizontal: componentSpacing.buttonPaddingX,
+    paddingVertical: componentSpacing.buttonPaddingY,
   },
   disabled: {
     opacity: 0.55,
   },
   text: {
-    fontSize: 16,
-    fontWeight: "800",
+    ...typography.button,
     color: "white",
   },
 });
-

@@ -5,6 +5,9 @@ import { ui } from "./tokens";
 import { Input } from "./Input";
 import { InputWithIcon } from "./InputWithIcon";
 import { TextArea } from "./TextArea";
+import type { TextInputProps } from "react-native";
+import { componentSpacing } from "./spacing";
+import { typography } from "./typography";
 
 type Props = {
   label?: string;
@@ -13,14 +16,12 @@ type Props = {
   disabled?: boolean;
 
   kind?: "input" | "textarea";
+
   rightText?: string;
   onRightPress?: () => void;
 
-  value?: string;
-  placeholder?: string;
-  onChangeText?: (v: string) => void;
+  inputProps?: Omit<TextInputProps, "style">;
 
-  // TextArea only
   minHeight?: number;
 };
 
@@ -32,9 +33,7 @@ export function Field({
   kind = "input",
   rightText,
   onRightPress,
-  value,
-  placeholder,
-  onChangeText,
+  inputProps,
   minHeight,
 }: Props) {
   const showRight = !!rightText;
@@ -46,30 +45,28 @@ export function Field({
 
       {kind === "textarea" ? (
         <TextArea
-          value={value}
-          placeholder={placeholder}
-          onChangeText={onChangeText}
           disabled={disabled}
           error={error}
           minHeight={minHeight}
+          value={typeof inputProps?.value === "string" ? inputProps.value : undefined}
+          placeholder={typeof inputProps?.placeholder === "string" ? inputProps.placeholder : undefined}
+          onChangeText={inputProps?.onChangeText}
         />
       ) : showRight ? (
         <InputWithIcon
-          value={value}
-          placeholder={placeholder}
-          onChangeText={onChangeText}
           disabled={disabled}
           error={error}
           rightText={rightText}
           onRightPress={onRightPress}
+          inputProps={inputProps}
         />
       ) : (
         <Input
-          value={value}
-          placeholder={placeholder}
-          onChangeText={onChangeText}
           disabled={disabled}
           error={error}
+          value={typeof inputProps?.value === "string" ? inputProps.value : undefined}
+          placeholder={typeof inputProps?.placeholder === "string" ? inputProps.placeholder : undefined}
+          onChangeText={inputProps?.onChangeText}
         />
       )}
     </View>
@@ -77,8 +74,7 @@ export function Field({
 }
 
 const styles = StyleSheet.create({
-  wrapper: { gap: 6 },
-  label: { fontSize: 13, fontWeight: "800", color: ui.colors.neutral.main },
-  hint: { fontSize: 12, opacity: 0.75, color: ui.colors.neutral.second },
+  wrapper: { gap: componentSpacing.fieldGap },
+  label: { ...typography.label, color: ui.colors.neutral.main },
+  hint: { ...typography.bodySm, color: ui.colors.neutral.second, opacity: 0.75 },
 });
-

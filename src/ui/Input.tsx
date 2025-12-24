@@ -2,6 +2,9 @@ import React from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 import { Text } from "@/components/Themed";
 import { ui } from "./tokens";
+import { componentSpacing } from "./spacing";
+import { componentRadius } from "./radius";
+import { typography } from "./typography";
 
 type Props = {
   value?: string;
@@ -38,17 +41,17 @@ export function Input({
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    gap: 6,
-  },
+  wrapper: { gap: componentSpacing.fieldGap },
   input: {
     minHeight: 46,
-    borderRadius: ui.radius.md,
+    borderRadius: componentRadius.input,
     borderWidth: 1,
     borderColor: ui.colors.background.border,
-    paddingHorizontal: ui.spacing.md,
-    fontSize: 15,
-    backgroundColor: "white",
+    paddingHorizontal: componentSpacing.inputPaddingX,
+    paddingVertical: componentSpacing.inputPaddingY,
+    backgroundColor: ui.colors.background.main,
+    color: ui.colors.neutral.main,
+    ...typography.body,
   },
   disabled: {
     backgroundColor: ui.colors.background.secondary,
@@ -58,9 +61,8 @@ const styles = StyleSheet.create({
     borderColor: ui.colors.danger.main,
   },
   errorText: {
-    fontSize: 12,
+    ...typography.bodySm,
     fontWeight: "700",
     color: ui.colors.danger.main,
   },
 });
-

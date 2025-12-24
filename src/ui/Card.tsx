@@ -1,6 +1,8 @@
 import React from "react";
 import { StyleSheet, View, ViewStyle } from "react-native";
 import { ui } from "./tokens";
+import { componentSpacing } from "./spacing";
+import { componentRadius } from "./radius";
 
 type BaseProps = {
   children: React.ReactNode;
@@ -21,21 +23,20 @@ export function CardContent({ children, style }: BaseProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: ui.radius.xl,
+    borderRadius: componentRadius.card,
     borderWidth: 1,
     borderColor: ui.colors.background.border,
-    backgroundColor: "white",
+    backgroundColor: ui.colors.background.main,
     overflow: "hidden",
   },
   header: {
-    paddingHorizontal: ui.spacing.lg,
-    paddingTop: ui.spacing.lg,
-    paddingBottom: ui.spacing.sm,
+    paddingHorizontal: componentSpacing.cardPaddingX,
+    paddingTop: componentSpacing.cardPaddingY,
+    paddingBottom: componentSpacing.fieldGap,
   },
   content: {
-    paddingHorizontal: ui.spacing.lg,
-    paddingBottom: ui.spacing.lg,
-    paddingTop: ui.spacing.sm,
+    paddingHorizontal: componentSpacing.cardPaddingX,
+    paddingBottom: componentSpacing.cardPaddingY,
+    paddingTop: componentSpacing.fieldGap,
   },
 });
-
