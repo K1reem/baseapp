@@ -1,13 +1,12 @@
-import { Text } from "@/components/Themed";
-import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from "react-native";
-import { useAuth } from "../../src/auth/auth";
+import { useRouter } from "expo-router";
+import { Text } from "@/components/Themed";
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const router = useRouter();
-  const { login } = useAuth();
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -16,14 +15,21 @@ export default function LoginScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const canSubmit = useMemo(() => {
+    const n = name.trim();
     const e = email.trim();
-    return e.length > 3 && e.includes("@") && password.length >= 6 && !isSubmitting;
-  }, [email, password, isSubmitting]);
+    return n.length >= 2 && e.length > 3 && e.includes("@") && password.length >= 6 && !isSubmitting;
+  }, [name, email, password, isSubmitting]);
 
   const onSubmit = async () => {
     setError(null);
 
+    const n = name.trim();
     const e = email.trim();
+
+    if (n.length < 2) {
+      setError("Veuillez entrer votre nom.");
+      return;
+    }
     if (!e || !e.includes("@")) {
       setError("Veuillez entrer un email valide.");
       return;
@@ -35,19 +41,14 @@ export default function LoginScreen() {
 
     setIsSubmitting(true);
     try {
-      // MOCK : on simule un appel réseau
-      await new Promise((r) => setTimeout(r, 600));
+      // MOCK: simule un appel réseau (plus tard: vraie inscription)
+      await new Promise((r) => setTimeout(r, 700));
 
-      // ✅ Plus tard : ici on remplacera par la vraie auth (Supabase, magic link, etc.)
-      // Exemples de messages prêts :
-      // - "Veuillez confirmer votre email via le lien reçu avant de vous connecter."
-      // - "Mot de passe incorrect."
-      // - "Aucun compte associé à cet email."
-
-      await login();
-      router.replace("/(tabs)");
+      // ✅ Plus tard: afficher un message type "Vérifiez vos emails" si magic link / confirmation
+      // Pour l'instant: on renvoie vers la page de connexion
+      router.replace("/(auth)/login");
     } catch {
-      setError("Connexion impossible. Réessayez.");
+      setError("Inscription impossible. Réessayez.");
     } finally {
       setIsSubmitting(false);
     }
@@ -56,25 +57,21 @@ export default function LoginScreen() {
   return (
     <View style={styles.page}>
       <View style={styles.card}>
-        {/* Logo (placeholder simple) */}
-        <View style={styles.logoBox}>
-          <Text style={styles.logoText}>LOGO</Text>
-        </View>
+        <Text style={styles.title}>Créer un compte</Text>
+        <Text style={styles.subtitle}>Quelques infos et c'est parti.</Text>
 
-        {/* Phrase description */}
-        <Text style={styles.description}>
-          Une phrase courte pour décrire l'app, simple et rassurante.
-        </Text>
-
-        {/* Titre + sous-titre */}
-        <Text style={styles.title}>Connexion</Text>
-        <Text style={styles.subtitle}>Ravi de vous revoir. Connectez-vous pour continuer.</Text>
-
-        {/* Erreur */}
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        {/* Inputs sans labels */}
         <View style={styles.inputGroup}>
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            placeholder="Nom"
+            autoCapitalize="words"
+            textContentType="name"
+            style={styles.input}
+          />
+
           <TextInput
             value={email}
             onChangeText={setEmail}
@@ -92,7 +89,7 @@ export default function LoginScreen() {
               placeholder="Mot de passe"
               autoCapitalize="none"
               secureTextEntry={!showPassword}
-              textContentType="password"
+              textContentType="newPassword"
               style={[styles.input, styles.passwordInput]}
             />
             <Pressable
@@ -104,17 +101,8 @@ export default function LoginScreen() {
               <Text style={styles.eyeText}>Oeil</Text>
             </Pressable>
           </View>
-
-          <Pressable
-            onPress={() => router.push("/(auth)/forgot-password" as any)}
-            style={styles.forgotWrap}
-            accessibilityRole="button"
-          >
-            <Text style={styles.forgotText}>Mot de passe oublié ?</Text>
-          </Pressable>
         </View>
 
-        {/* Bouton connexion */}
         <Pressable
           onPress={onSubmit}
           disabled={!canSubmit}
@@ -124,15 +112,14 @@ export default function LoginScreen() {
           {isSubmitting ? (
             <ActivityIndicator />
           ) : (
-            <Text style={styles.buttonText}>Connexion</Text>
+            <Text style={styles.buttonText}>Créer un compte</Text>
           )}
         </Pressable>
 
-        {/* Lien inscription */}
         <View style={styles.bottomRow}>
-          <Text style={styles.bottomText}>Vous n'avez pas de compte ? </Text>
-          <Pressable onPress={() => router.push("/(auth)/register" as any)} accessibilityRole="button">
-            <Text style={styles.bottomLink}>Créer un compte</Text>
+          <Text style={styles.bottomText}>Vous avez déjà un compte ? </Text>
+          <Pressable onPress={() => router.replace("/(auth)/login")} accessibilityRole="button">
+            <Text style={styles.bottomLink}>Se connecter</Text>
           </Pressable>
         </View>
       </View>
@@ -152,29 +139,9 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 12,
   },
-  logoBox: {
-    alignSelf: "center",
-    width: 72,
-    height: 72,
-    borderRadius: 18,
-    borderWidth: StyleSheet.hairlineWidth,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoText: {
-    fontWeight: "800",
-    fontSize: 12,
-    opacity: 0.8,
-  },
-  description: {
-    textAlign: "center",
-    opacity: 0.8,
-    fontSize: 14,
-    marginBottom: 6,
-  },
   title: {
     textAlign: "center",
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "800",
   },
   subtitle: {
@@ -218,15 +185,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "800",
   },
-  forgotWrap: {
-    alignSelf: "flex-end",
-    paddingVertical: 4,
-  },
-  forgotText: {
-    fontSize: 12,
-    fontWeight: "700",
-    opacity: 0.85,
-  },
   button: {
     marginTop: 6,
     paddingVertical: 12,
@@ -258,3 +216,4 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 });
+
